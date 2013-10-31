@@ -8,9 +8,9 @@ Gem::Specification.new do |spec|
   spec.version       = DataStructure::VERSION
   spec.authors       = ["Jeremy Friesen"]
   spec.email         = ["jeremy.n.friesen@gmail.com"]
-  spec.description   = %q{TODO: Write a gem description}
-  spec.summary       = %q{TODO: Write a gem summary}
-  spec.homepage      = ""
+  spec.description   = %q{Programatically declare your data structures for various contexts.}
+  spec.summary       = %q{Programatically declare your data structures for various contexts.}
+  spec.homepage      = "https://github.com/jeremyf/data_structure"
   spec.license       = "APACHE2"
 
   spec.files         = `git ls-files`.split($/)
