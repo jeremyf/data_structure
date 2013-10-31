@@ -23,7 +23,7 @@ Or install it yourself as:
 
 ## Usage
 
-Bear with me as these are aspirations.
+Bear with me as these are aspirations and entirely subject to change.
 Ultimately, I want to model the data structure of an object in its various contexts.
 I also want to be mindful that we could auto-build a data structure from a well-formed underlying model.
 
@@ -32,7 +32,7 @@ I also want to be mindful that we could auto-build a data structure from a well-
 class Book < SomeOrm
   class Structure
     include DataStructure::Container
-    attribute :title, mode: [:edit, :show], role: :editor, section: :required
+    attribute :title, mode: [:edit, :show], role: :editor, section: :required, as: 'Attribute::Title'
     attribute :administrative_notes, mode: [:show], role: :editor, section: :optional
 
     role :editor do
@@ -72,7 +72,20 @@ end
 
 The above two methods could be construed as logically equivalent.
 
+```ruby
+# A mean of easily declaring a Value Object
+# By wrapping a Literal with an Object we can programatically differentiate
+# what the Form and Show element that we may want to render.
+class DataStructure::Attribute
+  def initialize(context, name)
+    @context = context
+    @name = name
+  end
+  delegate :model, :mode, :role, to: :context
+end
 ```
+
+```ruby
 # app/controllers/books_controller.rb
 class BooksController < ApplicationController
 
@@ -95,15 +108,19 @@ end
 
 ```erb
 # app/views/book/edit.html.erb
-<%= form_for(@book) do |f| %>
+<%= form_for(@book, builder: DataStructure::FormBuilder) do |f| %>
   <% @book.each_attribute_for_section(:required) do |attribute| %>
-    <%= attribute.render(f) %>
+    <!-- In this case we would have the :f context as we are using the above builder -->
+    <%= attribute.render %>
   <% end %>
 <% end %>
 
 # app/views/book/show.html.erb
-<% @book.each_section do |section| %>
-  <%= section.render(self) %>
+<%= show_for(@book, builder: DataStructure::ShowBuilder) do |s| %>
+  <% @book.each_attribute_for_section(:required) do |attribute| %>
+    <!-- In this case we would have the :s context as we are using the above builder -->
+    <%= attribute.render %>
+  <% end %>
 <% end %>
 ```
 
