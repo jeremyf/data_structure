@@ -61,7 +61,9 @@ class BooksController < ApplicationController
     current_user.is_admin? ? :editor : nil
   end
 end
+```
 
+```erb
 # app/views/book/edit.html.erb
 <%= form_for(@book) do |f| %>
   <% @book.each_attribute_for_section(:required) do |attribute| %>
