@@ -28,21 +28,51 @@ Ultimately, I want to model the data structure of an object in its various conte
 I also want to be mindful that we could auto-build a data structure from a well-formed underlying model.
 
 ```ruby
-# app/models/book/edit.html.erb
-class Book < ActiveRecord::Base
+# With externally declared data structure
+class Book < SomeOrm
+  class Structure
+    include DataStructure::Container
+    attribute :title, mode: [:edit, :show], role: :editor, section: :required
+    attribute :administrative_notes, mode: [:show], role: :editor, section: :optional
+
+    role :editor do
+      validate :title, presence: true
+    end
+    mode :new do
+      validate :title, uniquness: true
+    end
+
+  end
+
+  attr_accessor :title
+  attr_accessor :description
+
   def to_data_structure(context, options)
-    Book::DataStructure.new(self, context, options)
+    Book::Structure.new(self, context, options)
   end
 end
 
-# app/models/book/data_structure.rb
-class Book::DataStructure
+# With inline declared data structure
+class Book < SomeOrm
   include DataStructure
+  data_structure do
+    attribute :title, mode: [:edit, :show], role: :editor, section: :required, as: Attribute::Title
+    attribute :description, mode: [:show], role: :editor, section: :optional
 
-  attribute :title, mode: [:edit, :show], role: :editor, section: :required
-  attribute :description, mode: [:show], role: :editor, section: :optional
+    role :editor do
+      validate :title, presence: true
+    end
+    mode :new do
+      validate :title, uniquness: true
+    end
+
+  end
 end
+```
 
+The above two methods could be construed as logically equivalent.
+
+```
 # app/controllers/books_controller.rb
 class BooksController < ApplicationController
 
